@@ -4,25 +4,88 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Header from "@/components/Header/Header"
 import HeroSwitcher, { HeroType } from "@/components/Hero/HeroSwitcher"
-import ServiciosAndroid from "@/components/Sections/DesarrolloAndroid/Servicios";
-import ServiciosWeb from "@/components/Sections/DesarrolloWeb/Servicios";
-import TecnologiasAndroid from "@/components/Sections/DesarrolloAndroid/Tecnologias";
-import TecnologiasWeb from "@/components/Sections/DesarrolloWeb/Tecnologias";
-import MetodologiaAndroid from "@/components/Sections/DesarrolloAndroid/Metodologia";
-import MetodologiaWeb from "@/components/Sections/DesarrolloWeb/Metodologia";
-import PortafolioAndroid from "@/components/Sections/DesarrolloAndroid/Portafolio";
-import PortafolioWeb from "@/components/Sections/DesarrolloWeb/Portafolio";
-import TestimoniosAndroid from "@/components/Sections/DesarrolloAndroid/Testimonios";
-import TestimoniosWeb from "@/components/Sections/DesarrolloWeb/Testimonios";
-import CTAAndroid from "@/components/Sections/DesarrolloAndroid/CTA";
-import CTAWeb from "@/components/Sections/DesarrolloWeb/CTA";
 import Nosotros from "@/components/Sections/Nosotros"
 import Contacto from "@/components/Sections/Contacto"
 import Footer from "@/components/Footer/Footer"
 import ScrollToTop from "@/components/common/ScrollToTop"
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { ProgressiveSection } from '@/components/common/ProgressiveSection';
+import { OptimizedLink } from '@/components/common/OptimizedLink';
+
+// Importaciones directas para componentes críticos
+import ServiciosAndroid from '@/components/Sections/DesarrolloAndroid/Servicios';
+import ServiciosWeb from '@/components/Sections/DesarrolloWeb/Servicios';
+
+// Importaciones dinámicas con prioridad para componentes secundarios
+const TecnologiasMovil = dynamic(() => import('@/components/Sections/DesarrolloMovil/Tecnologias'), {
+  ssr: true,
+  loading: () => null
+});
+
+const TecnologiasWeb = dynamic(() => import('@/components/Sections/DesarrolloWeb/Tecnologias'), {
+  ssr: true,
+  loading: () => null
+});
+
+const MetodologiaAndroid = dynamic(() => import('@/components/Sections/DesarrolloAndroid/Metodologia'), {
+  ssr: true,
+  loading: () => null
+});
+
+const MetodologiaWeb = dynamic(() => import('@/components/Sections/DesarrolloWeb/Metodologia'), {
+  ssr: true,
+  loading: () => null
+});
+
+const CTAAndroid = dynamic(() => import('@/components/Sections/DesarrolloAndroid/CTA'), {
+  ssr: true,
+  loading: () => null
+});
+
+const CTAWeb = dynamic(() => import('@/components/Sections/DesarrolloWeb/CTA'), {
+  ssr: true,
+  loading: () => null
+});
+
+// Componentes comentados que no se usarán por ahora
+const PortafolioAndroid = dynamic(() => import('@/components/Sections/DesarrolloAndroid/Portafolio'), {
+  ssr: true,
+  loading: () => null
+});
+
+const PortafolioWeb = dynamic(() => import('@/components/Sections/DesarrolloWeb/Portafolio'), {
+  ssr: true,
+  loading: () => null
+});
+
+const TestimoniosAndroid = dynamic(() => import('@/components/Sections/DesarrolloAndroid/Testimonios'), {
+  ssr: true,
+  loading: () => null
+});
+
+const TestimoniosWeb = dynamic(() => import('@/components/Sections/DesarrolloWeb/Testimonios'), {
+  ssr: true,
+  loading: () => null
+});
+
+// Función para precargar componentes en segundo plano con priorización
+const preloadComponentWithPriority = (importFn: () => Promise<any>, priority: number = 1) => {
+  return new Promise((resolve) => {
+    const timeoutId = setTimeout(() => {
+      importFn()
+        .then(resolve)
+        .catch(() => {
+          // Reintentar en caso de fallo con backoff exponencial
+          setTimeout(() => preloadComponentWithPriority(importFn, priority * 2), 1000);
+        });
+    }, priority * 100); // Prioridad escalonada
+    
+    return () => clearTimeout(timeoutId);
+  });
+};
 
 const projects = [
   {
@@ -115,84 +178,148 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
 
 export default function Home() {
   const [activeHero, setActiveHero] = useState<HeroType>("android");
-  const [autoSwitch, setAutoSwitch] = useState(true);
-
-  const isAndroid = activeHero === "android";
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [autoSwitch, setAutoSwitch] = useState(false);
   const isWeb = activeHero === "web";
+  
+  // Estado para seguimiento de componentes visibles
+  const [visibleSections, setVisibleSections] = useState({
+    hero: true,
+    servicios: false,
+    tecnologias: false,
+    metodologia: false,
+    nosotros: false,
+    cta: false,
+    contacto: false
+  });
+
+  // Memoizar controlador de cambio de héroe
+  const handleHeroChange = useCallback((heroType: HeroType) => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setActiveHero(heroType);
+    
+    // Desbloquear transiciones después de un tiempo
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 800);
+  }, [isTransitioning]);
+
+  // Precarga inteligente con priorización basada en visibilidad
+  useEffect(() => {
+    // Precargar componentes críticos inmediatamente
+    if (isWeb) {
+      // Los componentes de servicios ya están importados directamente
+      
+      // Precargar el siguiente componente más importante
+      if (visibleSections.tecnologias) {
+        preloadComponentWithPriority(() => import('@/components/Sections/DesarrolloWeb/Tecnologias'), 1);
+      }
+      
+      // Precargar componentes adicionales si están cerca de ser visibles
+      if (visibleSections.metodologia) {
+        preloadComponentWithPriority(() => import('@/components/Sections/DesarrolloWeb/Metodologia'), 2);
+      }
+      
+      if (visibleSections.cta) {
+        preloadComponentWithPriority(() => import('@/components/Sections/DesarrolloWeb/CTA'), 3);
+      }
+    } else {
+      // Los componentes de servicios ya están importados directamente
+      
+      // Precargar el siguiente componente más importante
+      if (visibleSections.tecnologias) {
+        preloadComponentWithPriority(() => import('@/components/Sections/DesarrolloAndroid/Tecnologias'), 1);
+      }
+      
+      // Precargar componentes adicionales si están cerca de ser visibles
+      if (visibleSections.metodologia) {
+        preloadComponentWithPriority(() => import('@/components/Sections/DesarrolloAndroid/Metodologia'), 2);
+      }
+      
+      if (visibleSections.cta) {
+        preloadComponentWithPriority(() => import('@/components/Sections/DesarrolloAndroid/CTA'), 3);
+      }
+    }
+  }, [isWeb, visibleSections]);
+
+  // Configurar observadores de visibilidad para las secciones
+  useEffect(() => {
+    const sectionIds = ['servicios', 'tecnologias', 'metodologia', 'nosotros', 'cta', 'contacto'];
+    const observers: IntersectionObserver[] = [];
+    
+    sectionIds.forEach(id => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setVisibleSections(prev => ({ ...prev, [id]: true }));
+          }
+        },
+        { threshold: 0.1, rootMargin: '200px 0px' }
+      );
+      
+      const element = document.getElementById(id);
+      if (element) {
+        observer.observe(element);
+        observers.push(observer);
+      }
+    });
+    
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 relative overflow-hidden">
-        <div className="relative w-full">
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/0 via-zinc-900/50 to-zinc-900/80"></div>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <HeroSwitcher
-              activeHero={activeHero}
-              setActiveHero={setActiveHero}
-              autoSwitch={autoSwitch}
-              setAutoSwitch={setAutoSwitch}
-            />
-          </div>
-        </div>
-
-        <div className="relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <section id="servicios" className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 to-transparent pointer-events-none"></div>
-              {isWeb ? <ServiciosWeb /> : <ServiciosAndroid />}
-            </section>
-
-            <section id="tecnologias" className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-t from-blue-900/5 to-transparent pointer-events-none"></div>
-              {isWeb ? <TecnologiasWeb /> : <TecnologiasAndroid />}
-            </section>
-
-            <section id="metodologia" className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-900/5 to-transparent pointer-events-none"></div>
-              {isWeb ? <MetodologiaWeb /> : <MetodologiaAndroid />}
-            </section>
-
-             {/* <section id="portafolio" className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-l from-blue-900/5 to-transparent pointer-events-none"></div>
-              {isWeb ? <PortafolioWeb /> : <PortafolioAndroid />}
-            </section>  */}
-
-            {/* <section className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/5 via-transparent to-blue-900/5 pointer-events-none"></div>
-              {isWeb ? <TestimoniosWeb /> : <TestimoniosAndroid />}
-            </section> */}
-
-            <section className="relative py-24 rounded-2xl bg-zinc-800/50 backdrop-blur-sm border border-zinc-700/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
-              {isWeb ? <CTAWeb /> : <CTAAndroid />}
-            </section>
-
-            <section id="nosotros" className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/5 via-transparent to-blue-900/5 pointer-events-none"></div>
-              <Nosotros />
-            </section>
-
-            <section id="contacto" className="relative py-24 rounded-2xl bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 my-24">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/5 via-transparent to-blue-900/5 pointer-events-none"></div>
-              <Contacto />
-            </section>
-          </div>
-        </div>
-      </main>
-
+    <div className="flex flex-col min-h-screen bg-zinc-950">
+      <Header activeHero={activeHero} onHeroChange={handleHeroChange} />
+      
+      {/* Hero - Carga prioritaria */}
+      <ProgressiveSection priority={true} className="w-full">
+        <HeroSwitcher 
+          activeHero={activeHero} 
+          setActiveHero={setActiveHero} 
+          autoSwitch={autoSwitch} 
+          setAutoSwitch={setAutoSwitch} 
+        />
+      </ProgressiveSection>
+      
+      {/* Servicios - Carga prioritaria */}
+      <ProgressiveSection id="servicios" priority={true} className="w-full">
+        {isWeb ? <ServiciosWeb /> : <ServiciosAndroid />}
+      </ProgressiveSection>
+      
+      {/* Tecnologías - Carga progresiva */}
+      <ProgressiveSection id="tecnologias" className="w-full">
+        {isWeb ? <TecnologiasWeb /> : <TecnologiasMovil />}
+      </ProgressiveSection>
+      
+      {/* Metodología - Carga progresiva */}
+      <ProgressiveSection id="metodologia" className="w-full">
+        {isWeb ? <MetodologiaWeb /> : <MetodologiaAndroid />}
+      </ProgressiveSection>
+      
+      {/* Nosotros - Carga progresiva */}
+      <ProgressiveSection id="nosotros" className="w-full">
+        <Nosotros />
+      </ProgressiveSection>
+      
+      {/* CTA - Carga progresiva */}
+      <ProgressiveSection id="cta" className="w-full">
+        {isWeb ? <CTAWeb /> : <CTAAndroid />}
+      </ProgressiveSection>
+      
+      {/* Contacto - Carga progresiva */}
+      <ProgressiveSection id="contacto" className="w-full">
+        <Contacto />
+      </ProgressiveSection>
+      
+      {/* Footer - Carga normal */}
       <Footer />
-
-      <div className="fixed bottom-8 right-8 z-50">
-        <ScrollToTop />
-      </div>
-
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/5 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-900/5 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/50 via-zinc-900 to-zinc-900 pointer-events-none"></div>
-      </div>
+      
+      {/* Botón de scroll to top */}
+      <ScrollToTop />
     </div>
   );
 }

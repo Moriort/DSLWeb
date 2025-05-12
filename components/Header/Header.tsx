@@ -3,37 +3,49 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Menu } from "lucide-react"
+import { Menu, Smartphone, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NeonButton } from "@/components/common/neon-button"
 import MobileMenu from "./MobileMenu"
 import ProgressBar from "./ProgressBar"
 import { motion } from "framer-motion"
 import { useActiveSection } from "./ActiveSectionContext"
+import { HeroType } from "@/components/Hero/HeroSwitcher"
+import { 
+  Code2, 
+  Layers, 
+  GitBranch, 
+  Briefcase, 
+  Users, 
+  MessageSquareMore 
+} from "lucide-react"
 
-export default function Header() {
+interface HeaderProps {
+  activeHero?: HeroType;
+  onHeroChange?: (hero: HeroType) => void;
+}
+
+export default function Header({ activeHero = "android", onHeroChange }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [isAtTop, setIsAtTop] = useState(true)
   const { activeSection, setActiveSection, setTimeOfLastClick, timeOfLastClick } = useActiveSection()
 
   const menuLinks = [
-    { href: "#servicios", label: "Servicios" },
-    { href: "#tecnologias", label: "Tecnologías" },
-    { href: "#metodologia", label: "Metodología" },
-    { href: "#portafolio", label: "Portafolio" },
-    { href: "#nosotros", label: "Nosotros" },
-    { href: "#contacto", label: "Contacto" },
+    { href: "#servicios", label: "Servicios", icon: Code2 },
+    { href: "#tecnologias", label: "Tecnologías", icon: Layers },
+    { href: "#metodologia", label: "Metodología", icon: GitBranch },
+    { href: "#portafolio", label: "Portafolio", icon: Briefcase },
+    { href: "#nosotros", label: "Nosotros", icon: Users },
+    { href: "#contacto", label: "Contacto", icon: MessageSquareMore }
   ]
 
-  // Detectar scroll para añadir sombra al header y verificar secciones visibles
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY
       setScrolled(scrollPosition > 20)
       setIsAtTop(scrollPosition < 100)
 
-      // No actualizamos la sección si el usuario acaba de hacer clic (esperamos 1 segundo)
       if (timeOfLastClick && Date.now() - timeOfLastClick < 1000) return
 
       const sections = menuLinks.map(link => ({
@@ -44,7 +56,6 @@ export default function Header() {
       const currentSection = sections.find(section => {
         if (!section.element) return false
         const rect = section.element.getBoundingClientRect()
-        // Consideramos que una sección está activa cuando su parte superior está cerca del 30% de la altura de la ventana
         return rect.top <= window.innerHeight * 0.3 && rect.bottom >= window.innerHeight * 0.3
       })
 
@@ -54,7 +65,6 @@ export default function Header() {
     }
 
     window.addEventListener("scroll", handleScroll)
-    // Llamamos a handleScroll una vez para establecer el estado inicial
     handleScroll()
     
     return () => window.removeEventListener("scroll", handleScroll)
@@ -70,8 +80,8 @@ export default function Header() {
       <ProgressBar />
       
       <header
-        className={`sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-900/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/80 transition-all duration-300 ${
-          scrolled ? "shadow-lg shadow-zinc-950/20" : ""
+        className={`sticky top-0 z-50 w-full border-b border-zinc-800/50 bg-zinc-900/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/80 transition-all duration-300 ${
+          scrolled ? "shadow-lg shadow-zinc-950/10" : ""
         }`}
       >
         <div className="container flex h-16 items-center justify-between max-w-6xl mx-auto px-4">
@@ -82,7 +92,7 @@ export default function Header() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
               >
                 <Image 
                   src="/LogoLight.png" 
@@ -96,88 +106,69 @@ export default function Header() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-1 bg-zinc-800/30 rounded-full px-2 py-1 backdrop-blur-sm">
+            <div className="mr-2 flex items-center">
+              <div 
+                className={`flex items-center rounded-full px-2 py-1 ${
+                  activeHero === 'android' 
+                  ? 'bg-emerald-900/20 border border-emerald-800/30 text-emerald-300'
+                  : 'bg-blue-900/20 border border-blue-800/30 text-blue-300'
+                }`}
+              >
+                {activeHero === 'android' ? (
+                  <div className="flex items-center gap-1.5">
+                    <Smartphone className="h-3 w-3 text-emerald-300" />
+                    <span className="text-xs font-medium text-emerald-300">Android</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <Globe className="h-3 w-3 text-blue-300" />
+                    <span className="text-xs font-medium text-blue-300">Web</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1 bg-zinc-800/20 rounded-full px-2 py-1 backdrop-blur-sm">
               {menuLinks.map((link) => {
                 const isActive = !isAtTop && activeSection === link.href.substring(1)
+                const Icon = link.icon
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => handleClick(link.href.substring(1))}
-                    className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 rounded-full overflow-hidden ${
+                    className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 rounded-full overflow-hidden flex items-center gap-2 ${
                       isActive 
-                        ? "text-blue-400 bg-blue-950 ring-2 ring-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:bg-blue-900" 
-                        : "text-zinc-300 hover:text-blue-400 hover:bg-blue-950 hover:ring-1 hover:ring-blue-400/50"
+                        ? "text-blue-400 bg-blue-950/50 ring-1 ring-blue-400/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
+                        : "text-zinc-400 hover:text-blue-400 hover:bg-blue-950/30"
                     }`}
                   >
-                    <span className="relative z-10">{link.label}</span>
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-zinc-500"}`} />
+                      <span className={`bg-gradient-to-r ${isActive ? 'from-blue-400 via-blue-400 to-blue-500' : 'from-zinc-400 via-zinc-400 to-zinc-500'} bg-clip-text text-transparent`}>
+                        {link.label}
+                      </span>
+                    </span>
                     {isActive && (
                       <>
                         <motion.span
                           layoutId="bubble"
-                          className="absolute inset-0 z-[1] rounded-full bg-blue-400/20"
+                          className="absolute inset-0 z-[1] rounded-full bg-blue-400/10"
                           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                          animate={{
-                            scale: [1, 1.1, 1],
-                            opacity: [0.3, 0.6, 0.3]
-                          }}
                         />
                         <motion.div
                           className="absolute inset-0 z-[2]"
                           animate={{
                             background: [
-                              "radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                              "radial-gradient(circle at 60% 60%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                              "radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                              "radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
+                              "radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%)",
+                              "radial-gradient(circle at 60% 60%, rgba(59, 130, 246, 0.08) 0%, transparent 50%)",
+                              "radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 50%)",
                             ]
                           }}
                           transition={{
                             duration: 4,
                             repeat: Infinity,
                             ease: "linear"
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 z-[3] mix-blend-soft-light opacity-50"
-                          style={{
-                            background: "radial-gradient(100% 100% at 50% 50%, transparent 0%, rgba(59, 130, 246, 0.2) 100%)"
-                          }}
-                          animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 z-[4] blur-md"
-                          style={{
-                            background: "linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent)"
-                          }}
-                          animate={{
-                            x: ["-100%", "100%"],
-                            y: ["-100%", "100%"]
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        />
-                        <motion.span
-                          className="absolute inset-0 z-[-2] rounded-full bg-blue-400/10 blur-xl"
-                          animate={{
-                            scale: [1.1, 1.2, 1.1],
-                            opacity: [0.2, 0.4, 0.2]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
                           }}
                         />
                       </>
@@ -190,31 +181,35 @@ export default function Header() {
               <NeonButton 
                 color="blue" 
                 variant="outline"
-                className={`shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 ${
-                  isAtTop ? "ring-2 ring-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)]" : ""
+                className={`shadow-sm shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-300 text-sm px-5 py-2 ${
+                  isAtTop ? "ring-1 ring-blue-400/30 shadow-[0_0_10px_rgba(59,130,246,0.1)]" : ""
                 }`}
               >
-                Cotizar Proyecto
+                <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
+                  Cotizar
+                </span>
               </NeonButton>
             </div>
           </nav>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative md:hidden focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-zinc-900 rounded-full transition-all duration-300"
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden relative overflow-hidden" 
             onClick={() => setIsMenuOpen(true)}
           >
-            <Menu className="h-5 w-5 text-zinc-200 hover:text-blue-400 transition-colors" />
-            <span className="sr-only">Abrir menú</span>
+            <Menu className="h-6 w-6 relative z-10 text-zinc-400" />
+            <span className="sr-only">Toggle menu</span>
           </Button>
         </div>
       </header>
-
-      <MobileMenu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        menuLinks={menuLinks}
-        isAtTop={isAtTop}
+      
+      <MobileMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        links={menuLinks} 
+        activeSection={activeSection}
+        onLinkClick={handleClick}
+        activeHero={activeHero}
       />
     </>
   )

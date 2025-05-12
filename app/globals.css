@@ -131,3 +131,21 @@ p, a, button, input, textarea, span, li {
   font-family: 'Outfit', sans-serif;
 }
 
+/* Ocultar scrollbar para Chrome, Safari y Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ocultar scrollbar para IE, Edge y Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Aplicar efecto de pulso al tocar elementos interactivos */
+.touch-pulse:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+  transition: transform 0.1s, opacity 0.1s;
+}
+

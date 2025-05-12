@@ -1,24 +1,37 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { X } from "lucide-react"
+import { X, Smartphone, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NeonButton } from "@/components/common/neon-button"
-import { useActiveSection } from "./ActiveSectionContext"
 import Image from "next/image"
+import { HeroType } from "@/components/Hero/HeroSwitcher"
+
+interface LinkItem {
+  href: string
+  label: string
+  icon: React.ElementType
+}
 
 interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
-  menuLinks: Array<{ href: string; label: string }>
-  isAtTop: boolean
+  links: LinkItem[]
+  activeSection: string
+  onLinkClick: (section: string) => void
+  activeHero?: HeroType
 }
 
-export default function MobileMenu({ isOpen, onClose, menuLinks, isAtTop }: MobileMenuProps) {
-  const { activeSection, setActiveSection, setTimeOfLastClick } = useActiveSection()
-
+export default function MobileMenu({ 
+  isOpen, 
+  onClose, 
+  links, 
+  activeSection,
+  onLinkClick,
+  activeHero = 'android'
+}: MobileMenuProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden"
@@ -31,9 +44,14 @@ export default function MobileMenu({ isOpen, onClose, menuLinks, isAtTop }: Mobi
   }, [isOpen])
 
   const handleClick = (sectionId: string) => {
-    setTimeOfLastClick(Date.now())
-    setActiveSection(sectionId)
-    onClose()
+    const element = document.getElementById(sectionId)
+    if (element) {
+      onLinkClick(sectionId)
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: "smooth" })
+        onClose()
+      }, 100)
+    }
   }
 
   return (
@@ -45,121 +63,94 @@ export default function MobileMenu({ isOpen, onClose, menuLinks, isAtTop }: Mobi
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-zinc-950/90 backdrop-blur-sm z-40"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-sm bg-zinc-900 border-l border-zinc-800 p-6 z-50"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed right-0 top-0 z-50 h-full w-full max-w-xs bg-zinc-900 border-l border-zinc-800/40 shadow-xl"
           >
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-2">
-                <Image 
-                  src="/LogoLight.png" 
-                  alt="Digital Strong Locking Logo" 
-                  width={120} 
-                  height={40} 
-                  className="object-contain h-10"
-                  priority
-                />
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-zinc-800"
-                onClick={onClose}
-              >
-                <X className="h-5 w-5" />
-                <span className="sr-only">Cerrar menú</span>
-              </Button>
-            </div>
-            <nav className="space-y-2">
-              {menuLinks.map((link) => {
-                const isActive = !isAtTop && activeSection === link.href.substring(1)
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => handleClick(link.href.substring(1))}
-                    className={`relative block px-4 py-3 rounded-lg transition-all duration-300 overflow-hidden ${
-                      isActive
-                        ? "bg-blue-950 text-blue-400 ring-1 ring-blue-400/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                        : "text-zinc-300 hover:bg-blue-950/50 hover:text-blue-400"
+            <div className="flex h-full flex-col overflow-hidden">
+              <div className="flex items-center justify-between border-b border-zinc-800/40 px-4 py-4">
+                <div className="flex items-center gap-2">
+                  <div 
+                    className={`flex items-center rounded-full px-2 py-1 ${
+                      activeHero === 'android' 
+                      ? 'bg-emerald-900/20 border border-emerald-800/30 text-emerald-300'
+                      : 'bg-blue-900/20 border border-blue-800/30 text-blue-300'
                     }`}
                   >
-                    <span className="relative z-10">{link.label}</span>
-                    {isActive && (
-                      <>
-                        <motion.div
-                          layoutId="mobile-bubble"
-                          className="absolute inset-0 z-[1] rounded-lg bg-blue-400/20"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 z-[2]"
-                          animate={{
-                            background: [
-                              "radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                              "radial-gradient(circle at 60% 60%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                              "radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                              "radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%)",
-                            ]
-                          }}
-                          transition={{
-                            duration: 4,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 z-[3] mix-blend-soft-light opacity-50"
-                          style={{
-                            background: "radial-gradient(100% 100% at 50% 50%, transparent 0%, rgba(59, 130, 246, 0.2) 100%)"
-                          }}
-                          animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 z-[4] blur-md"
-                          style={{
-                            background: "linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent)"
-                          }}
-                          animate={{
-                            x: ["-100%", "100%"],
-                            y: ["-100%", "100%"]
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "linear"
-                          }}
-                        />
-                      </>
+                    {activeHero === 'android' ? (
+                      <div className="flex items-center gap-1.5">
+                        <Smartphone className="h-3 w-3 text-emerald-300" />
+                        <span className="text-xs font-medium text-emerald-300">Android</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <Globe className="h-3 w-3 text-blue-300" />
+                        <span className="text-xs font-medium text-blue-300">Web</span>
+                      </div>
                     )}
-                  </Link>
-                )
-              })}
-            </nav>
-            <div className="mt-8">
-              <NeonButton 
-                color="blue" 
-                variant="outline" 
-                className={`w-full justify-center shadow-lg shadow-blue-500/20 ${
-                  isAtTop ? "ring-2 ring-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)]" : ""
-                }`}
-              >
-                Cotizar Proyecto
-              </NeonButton>
+                  </div>
+                  <h2 className="text-lg font-semibold text-white">Menú</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full text-zinc-400 hover:text-white"
+                  onClick={onClose}
+                >
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">Cerrar menú</span>
+                </Button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto py-4 px-4">
+                <nav className="grid gap-2">
+                  {links.map((link) => {
+                    const isActive = activeSection === link.href.substring(1)
+                    const Icon = link.icon
+                    
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onLinkClick(link.href.substring(1))
+                          onClose()
+                        }}
+                        className={`group relative flex items-center gap-3 rounded-lg p-3 text-sm transition-all ${
+                          isActive
+                            ? 'bg-blue-900/20 text-blue-400 font-medium'
+                            : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-white'
+                        }`}
+                      >
+                        <div className={`rounded-lg p-1.5 ${isActive ? 'bg-blue-900/30' : 'bg-zinc-800/40'}`}>
+                          <Icon className={`h-5 w-5 ${isActive ? 'text-blue-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                        </div>
+                        <span>{link.label}</span>
+                      </Link>
+                    )
+                  })}
+                </nav>
+              </div>
+              
+              <div className="border-t border-zinc-800/40 p-4">
+                <NeonButton 
+                  color="blue" 
+                  fullWidth={true}
+                  variant="outline"
+                  className="shadow-sm shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-300"
+                >
+                  <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
+                    Cotizar
+                  </span>
+                </NeonButton>
+              </div>
             </div>
           </motion.div>
         </>

@@ -2,83 +2,90 @@
 
 import { useState, useRef, useEffect } from "react"
 import { 
-  SiVsco, SiGit, SiJira, SiAmazon, SiVercel, SiDocker, SiJest, 
-  SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, 
-  SiNodedotjs, SiExpress, SiMongodb, SiPostgresql
+  SiAndroidstudio, SiIntellijidea, SiGit, SiJira, SiGoogleplay,
+  SiKotlin, SiJetpackcompose, SiAndroid, SiFigma,
+  SiFirebase, SiGooglecloud, SiSqlite
 } from "react-icons/si"
+import { FaJava } from "react-icons/fa"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Tecnologías frontend
-const frontendTechs = [
+// Tecnologías principales
+const mainTechs = [
   {
-    name: "React",
-    desc: "Biblioteca UI",
+    name: "Kotlin",
+    desc: "Lenguaje principal",
     level: 95,
-    icon: SiReact,
-    color: "from-blue-400 to-cyan-400"
+    icon: SiKotlin,
+    color: "from-purple-500 to-purple-700"
   },
   {
-    name: "Next.js",
-    desc: "Framework React",
+    name: "Jetpack Compose",
+    desc: "UI moderna",
     level: 90,
-    icon: SiNextdotjs,
-    color: "from-zinc-700 to-zinc-900"
-  },
-  {
-    name: "TypeScript",
-    desc: "Tipado estático",
-    level: 90,
-    icon: SiTypescript,
-    color: "from-blue-500 to-blue-700"
-  },
-  {
-    name: "Tailwind CSS",
-    desc: "Framework CSS",
-    level: 95,
-    icon: SiTailwindcss,
-    color: "from-cyan-400 to-blue-500"
-  }
-]
-
-// Tecnologías backend
-const backendTechs = [
-  {
-    name: "Node.js",
-    desc: "Runtime JavaScript",
-    level: 90,
-    icon: SiNodedotjs,
-    color: "from-green-600 to-green-700"
-  },
-  {
-    name: "Express",
-    desc: "Framework web",
-    level: 85,
-    icon: SiExpress,
-    color: "from-zinc-600 to-zinc-800"
-  },
-  {
-    name: "MongoDB",
-    desc: "Base de datos NoSQL",
-    level: 85,
-    icon: SiMongodb,
+    icon: SiJetpackcompose,
     color: "from-green-500 to-green-700"
   },
   {
-    name: "PostgreSQL",
-    desc: "Base de datos SQL",
+    name: "Java",
+    desc: "Soporte legacy",
+    level: 85,
+    icon: FaJava,
+    color: "from-orange-500 to-orange-700"
+  },
+  {
+    name: "Android SDK",
+    desc: "Kit de desarrollo",
+    level: 95,
+    icon: SiAndroid,
+    color: "from-green-600 to-green-800"
+  }
+]
+
+// Tecnologías de arquitectura
+const architectureTechs = [
+  {
+    name: "MVVM",
+    desc: "Patrón de arquitectura",
     level: 90,
-    icon: SiPostgresql,
-    color: "from-blue-600 to-indigo-800"
+    icon: SiAndroid,
+    color: "from-blue-500 to-blue-700"
+  },
+  {
+    name: "Clean Architecture",
+    desc: "Arquitectura por capas",
+    level: 90,
+    icon: SiAndroid,
+    color: "from-indigo-500 to-indigo-700"
+  },
+  {
+    name: "Room",
+    desc: "Persistencia de datos",
+    level: 85,
+    icon: SiAndroid,
+    color: "from-green-500 to-green-700"
+  },
+  {
+    name: "SQLite",
+    desc: "Base de datos local",
+    level: 90,
+    icon: SiSqlite,
+    color: "from-blue-600 to-blue-800"
   }
 ]
 
 // Herramientas de desarrollo
 const devTools = [
   { 
-    name: "VS Code", 
-    desc: "Editor principal", 
-    icon: SiVsco,
-    color: "from-blue-600 to-blue-800"
+    name: "Android Studio", 
+    desc: "IDE principal", 
+    icon: SiAndroidstudio,
+    color: "from-green-600 to-green-800"
+  },
+  { 
+    name: "IntelliJ IDEA", 
+    desc: "IDE alternativo", 
+    icon: SiIntellijidea,
+    color: "from-pink-600 to-pink-800"
   },
   { 
     name: "Git", 
@@ -93,45 +100,45 @@ const devTools = [
     color: "from-blue-500 to-blue-700"
   },
   { 
-    name: "Docker", 
-    desc: "Contenedores", 
-    icon: SiDocker,
-    color: "from-blue-500 to-blue-700"
-  },
-  { 
-    name: "Jest", 
-    desc: "Testing", 
-    icon: SiJest,
-    color: "from-red-500 to-red-700"
+    name: "Figma", 
+    desc: "Diseño UI/UX", 
+    icon: SiFigma,
+    color: "from-purple-500 to-purple-700"
   }
 ]
 
 // Plataformas de despliegue
 const deployTools = [
   { 
-    name: "Vercel", 
-    desc: "Despliegue frontend", 
-    icon: SiVercel,
-    color: "from-zinc-800 to-zinc-950",
-    badge: "Preferido"
+    name: "Google Play", 
+    desc: "Tienda de aplicaciones", 
+    icon: SiGoogleplay,
+    color: "from-green-600 to-green-800",
+    badge: "Principal"
   },
   { 
-    name: "AWS", 
-    desc: "Infraestructura cloud", 
-    icon: SiAmazon,
+    name: "Firebase", 
+    desc: "Backend y analíticas", 
+    icon: SiFirebase,
     color: "from-orange-500 to-orange-700"
+  },
+  { 
+    name: "Google Cloud", 
+    desc: "Servicios en la nube", 
+    icon: SiGooglecloud,
+    color: "from-blue-500 to-blue-700"
   }
 ]
 
 // Categorías del stack
 const categories = [
-  { id: "frontend", label: "Frontend" },
-  { id: "backend", label: "Backend" },
+  { id: "main", label: "Principal" },
+  { id: "architecture", label: "Arquitectura" },
   { id: "tools", label: "Herramientas" }
 ]
 
 export function TechStack() {
-  const [activeCategory, setActiveCategory] = useState("frontend")
+  const [activeCategory, setActiveCategory] = useState("main")
   const [isVisible, setIsVisible] = useState(false)
   const componentRef = useRef(null)
   
@@ -185,10 +192,10 @@ export function TechStack() {
   // Obtener las tecnologías según la categoría seleccionada
   const getTechsByCategory = () => {
     switch(activeCategory) {
-      case "frontend": return frontendTechs
-      case "backend": return backendTechs
+      case "main": return mainTechs
+      case "architecture": return architectureTechs
       case "tools": return [...devTools, ...deployTools]
-      default: return frontendTechs
+      default: return mainTechs
     }
   }
 
@@ -201,7 +208,7 @@ export function TechStack() {
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Stack Tecnológico Detallado</h2>
           <p className="text-zinc-400 max-w-2xl mx-auto">
-            Explora en profundidad nuestra selección de tecnologías para desarrollo web profesional
+            Explora en profundidad nuestra selección de tecnologías para desarrollo Android profesional
           </p>
         </div>
         
@@ -231,13 +238,13 @@ export function TechStack() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            {activeCategory === "frontend" && (
+            {activeCategory === "main" && (
               <div className="mb-14">
                 <h3 className="text-xl font-bold text-white mb-8 flex items-center justify-center">
-                  <span className="bg-blue-600/20 p-2 rounded-lg mr-2 text-blue-400">
-                    <SiReact className="w-5 h-5" />
+                  <span className="bg-purple-600/20 p-2 rounded-lg mr-2 text-purple-400">
+                    <SiKotlin className="w-5 h-5" />
                   </span>
-                  Frontend
+                  Tecnologías principales
                 </h3>
                 <motion.div 
                   variants={containerAnimation}
@@ -245,7 +252,56 @@ export function TechStack() {
                   animate={isVisible ? "show" : "hidden"}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                 >
-                  {frontendTechs.map((tech, i) => (
+                  {mainTechs.map((tech, i) => (
+                    <motion.div 
+                      key={tech.name}
+                      variants={itemAnimation}
+                      className="group relative bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 transition-all duration-300 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10"
+                    >
+                      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${tech.color}`}></div>
+                      <div className="p-6 flex flex-col items-center">
+                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tech.color} p-3.5 mb-5 shadow-lg`}>
+                          <tech.icon className="w-full h-full text-white" />
+                        </div>
+                        <h4 className="text-lg font-semibold text-white mb-1">{tech.name}</h4>
+                        <p className="text-sm text-zinc-400 mb-4">{tech.desc}</p>
+                        
+                        <div className="w-full">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs text-zinc-500">Nivel</span>
+                            <span className="text-xs font-medium text-purple-400">{tech.level}%</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                            <motion.div 
+                              className={`h-full rounded-full bg-gradient-to-r ${tech.color}`}
+                              initial={{ width: 0 }}
+                              animate={{ width: isVisible ? `${tech.level}%` : 0 }}
+                              transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
+            
+            {activeCategory === "architecture" && (
+              <div className="mb-14">
+                <h3 className="text-xl font-bold text-white mb-8 flex items-center justify-center">
+                  <span className="bg-blue-600/20 p-2 rounded-lg mr-2 text-blue-400">
+                    <SiAndroid className="w-5 h-5" />
+                  </span>
+                  Arquitectura
+                </h3>
+                <motion.div 
+                  variants={containerAnimation}
+                  initial={isVisible ? "show" : "hidden"}
+                  animate={isVisible ? "show" : "hidden"}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                >
+                  {architectureTechs.map((tech, i) => (
                     <motion.div 
                       key={tech.name}
                       variants={itemAnimation}
@@ -280,61 +336,12 @@ export function TechStack() {
               </div>
             )}
             
-            {activeCategory === "backend" && (
-              <div className="mb-14">
-                <h3 className="text-xl font-bold text-white mb-8 flex items-center justify-center">
-                  <span className="bg-green-600/20 p-2 rounded-lg mr-2 text-green-400">
-                    <SiNodedotjs className="w-5 h-5" />
-                  </span>
-                  Backend
-                </h3>
-                <motion.div 
-                  variants={containerAnimation}
-                  initial={isVisible ? "show" : "hidden"}
-                  animate={isVisible ? "show" : "hidden"}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-                >
-                  {backendTechs.map((tech, i) => (
-                    <motion.div 
-                      key={tech.name}
-                      variants={itemAnimation}
-                      className="group relative bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 transition-all duration-300 hover:border-green-500/50 hover:shadow-lg hover:shadow-green-500/10"
-                    >
-                      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${tech.color}`}></div>
-                      <div className="p-6 flex flex-col items-center">
-                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tech.color} p-3.5 mb-5 shadow-lg`}>
-                          <tech.icon className="w-full h-full text-white" />
-                        </div>
-                        <h4 className="text-lg font-semibold text-white mb-1">{tech.name}</h4>
-                        <p className="text-sm text-zinc-400 mb-4">{tech.desc}</p>
-                        
-                        <div className="w-full">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-xs text-zinc-500">Nivel</span>
-                            <span className="text-xs font-medium text-green-400">{tech.level}%</span>
-                          </div>
-                          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-                            <motion.div 
-                              className={`h-full rounded-full bg-gradient-to-r ${tech.color}`}
-                              initial={{ width: 0 }}
-                              animate={{ width: isVisible ? `${tech.level}%` : 0 }}
-                              transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-            )}
-            
             {activeCategory === "tools" && (
               <div>
                 <div className="mb-14">
                   <h3 className="text-xl font-bold text-white mb-8 flex items-center justify-center">
-                    <span className="bg-indigo-600/20 p-2 rounded-lg mr-2 text-indigo-400">
-                      <SiVsco className="w-5 h-5" />
+                    <span className="bg-green-600/20 p-2 rounded-lg mr-2 text-green-400">
+                      <SiAndroidstudio className="w-5 h-5" />
                     </span>
                     Entorno de desarrollo
                   </h3>
@@ -348,7 +355,7 @@ export function TechStack() {
                       <motion.div 
                         key={tool.name}
                         variants={itemAnimation}
-                        className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 transition-all duration-300 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 flex flex-col items-center justify-center text-center"
+                        className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 transition-all duration-300 hover:border-green-500/50 hover:shadow-lg hover:shadow-green-500/10 flex flex-col items-center justify-center text-center"
                       >
                         <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tool.color} p-3 mb-4 shadow-lg`}>
                           <tool.icon className="w-full h-full text-white" />
@@ -363,22 +370,22 @@ export function TechStack() {
                 <div>
                   <h3 className="text-xl font-bold text-white mb-8 flex items-center justify-center">
                     <span className="bg-orange-600/20 p-2 rounded-lg mr-2 text-orange-400">
-                      <SiVercel className="w-5 h-5" />
+                      <SiGoogleplay className="w-5 h-5" />
                     </span>
-                    Despliegue e infraestructura
+                    Despliegue y servicios
                   </h3>
                   <motion.div 
                     variants={containerAnimation}
                     initial={isVisible ? "show" : "hidden"}
                     animate={isVisible ? "show" : "hidden"}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-6"
                   >
                     {deployTools.map((tool) => (
                       <motion.div 
                         key={tool.name}
                         variants={itemAnimation}
                         className={`flex items-center gap-5 bg-zinc-900 rounded-xl p-6 border border-zinc-800 transition-all duration-300 ${
-                          tool.badge ? 'border-blue-700/30' : ''
+                          tool.badge ? 'border-green-700/30' : ''
                         } hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/10`}
                       >
                         <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${tool.color} p-3.5 shadow-lg flex-shrink-0`}>
@@ -388,7 +395,7 @@ export function TechStack() {
                           <div className="flex items-center justify-between">
                             <h4 className="text-lg font-semibold text-white">{tool.name}</h4>
                             {tool.badge && (
-                              <span className="px-2.5 py-1 text-xs font-medium bg-blue-600/30 text-blue-400 rounded-full">
+                              <span className="px-2.5 py-1 text-xs font-medium bg-green-600/30 text-green-400 rounded-full">
                                 {tool.badge}
                               </span>
                             )}
@@ -396,10 +403,10 @@ export function TechStack() {
                           <p className="text-sm text-zinc-400 mt-1">{tool.desc}</p>
                           <div className="flex mt-3 gap-2">
                             <span className="px-2 py-1 bg-zinc-800/80 rounded text-xs text-zinc-400">
-                              Escalable
+                              Distribución
                             </span>
                             <span className="px-2 py-1 bg-zinc-800/80 rounded text-xs text-zinc-400">
-                              Alta disponibilidad
+                              Analíticas
                             </span>
                           </div>
                         </div>
@@ -414,4 +421,4 @@ export function TechStack() {
       </div>
     </section>
   )
-}
+} 
